@@ -3,7 +3,7 @@ import { TextField, Button, Typography, Box, Paper, Alert, MenuItem, FormControl
 import { useAuth } from '../context/useAuth.ts';
 import { useNavigate } from 'react-router-dom';
 import { useToast } from '../context/toastBase.ts';
-import { Role } from '../../domain/types';
+import { Role } from '../../domain/types.ts';
 
 const Register: React.FC = () => {
     const [name, setName] = useState('');
