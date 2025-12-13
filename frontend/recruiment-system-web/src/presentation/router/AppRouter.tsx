@@ -1,16 +1,51 @@
 import React from 'react';
-import { BrowserRouter, Routes, Route } from 'react-router-dom';
+import { BrowserRouter, Routes, Route, Navigate, Outlet } from 'react-router-dom';
+import { useAuth } from '../context/useAuth';
+import Login from '../pages/Login';
+import Register from '../pages/Register';
+import JobDashboard from '../pages/JobDashboard';
 import Home from '../pages/Home';
-import Register from './Register';
-import Login from './Login';
+import Layout from '../components/Layout';
+import { CircularProgress, Box } from '@mui/material';
+
+const PrivateRoute = () => {
+    const { isAuthenticated, isLoading } = useAuth();
+
+    if (isLoading) {
+        return (
+            <Box display="flex" justifyContent="center" alignItems="center" height="100vh">
+                <CircularProgress />
+            </Box>
+        );
+    }
+
+    return isAuthenticated ? <Layout><Outlet /></Layout> : <Navigate to="/login" replace />;
+};
+
+const PublicRoute = () => {
+    const { isAuthenticated, isLoading } = useAuth();
+
+    if (isLoading) return null;
+
+    return !isAuthenticated ? <Outlet /> : <Navigate to="/jobs" replace />; // Redirect logged users to dashboard
+};
 
 const AppRouter: React.FC = () => {
     return (
         <BrowserRouter>
             <Routes>
-                <Route path="/" element={<Home />} />
-                <Route path="/login" element={<Login />} />
-                <Route path="/register" element={<Register />} />
+                <Route element={<PublicRoute />}>
+                    <Route path="/" element={<Home />} />
+                    <Route path="/login" element={<Login />} />
+                    <Route path="/register" element={<Register />} />
+                </Route>
+
+                <Route element={<PrivateRoute />}>
+                    <Route path="/jobs" element={<JobDashboard />} />
+                    <Route path="*" element={<Navigate to="/jobs" />} />
+                </Route>
+
+                <Route path="*" element={<Navigate to="/" />} />
             </Routes>
         </BrowserRouter>
     );
