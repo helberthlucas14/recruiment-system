@@ -76,6 +76,11 @@ type UpdateJobInputDTO struct {
 	Status       string `json:"status"`
 }
 
+type FinalizeJobInputDTO struct {
+	JobID       uint `json:"job_id"`
+	CandidateID uint `json:"candidate_id"`
+}
+
 // Pagination
 type PaginationInputDTO struct {
 	Page   int    `form:"page" json:"page"`

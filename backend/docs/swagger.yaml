@@ -52,6 +52,13 @@ definitions:
       title:
         type: string
     type: object
+  dto.DashboardStatsDTO:
+    properties:
+      applied:
+        type: integer
+      pending:
+        type: integer
+    type: object
   dto.GetJobOutputDTO:
     properties:
       anonymous:
@@ -145,6 +152,13 @@ definitions:
     properties:
       error:
         type: string
+    type: object
+  web.FinalizeJobRequest:
+    properties:
+      candidate_id:
+        type: integer
+    required:
+    - candidate_id
     type: object
   web.LoginRequest:
     properties:
@@ -257,6 +271,23 @@ paths:
       summary: Cancel an application
       tags:
       - applications
+  /dashboard/summary:
+    get:
+      consumes:
+      - application/json
+      description: Get statistics for the dashboard
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/dto.DashboardStatsDTO'
+      security:
+      - BearerAuth: []
+      summary: Get dashboard summary
+      tags:
+      - dashboard
   /jobs:
     get:
       consumes:
@@ -444,6 +475,41 @@ paths:
       summary: Apply for a job
       tags:
       - applications
+  /jobs/{id}/finalize:
+    post:
+      consumes:
+      - application/json
+      description: Close the job and mark the specified candidate as hired
+      parameters:
+      - description: Job ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      - description: Finalize Request
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/web.FinalizeJobRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/web.ErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: Finalize a job and hire a candidate
+      tags:
+      - jobs
   /jobs/mine:
     get:
       consumes:

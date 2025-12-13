@@ -47,13 +47,14 @@ func main() {
 
 	// Initialize UseCases
 	authUseCase := usecase.NewAuthUseCase(userRepo, cfg.JWTSecret)
-	jobUseCase := usecase.NewJobUseCase(jobRepo)
+	jobUseCase := usecase.NewJobUseCase(jobRepo, appRepo)
 	appUseCase := usecase.NewApplicationUseCase(appRepo, jobRepo)
 
 	// Initialize Handlers
 	authHandler := web.NewAuthHandler(authUseCase)
 	jobHandler := web.NewJobHandler(jobUseCase)
 	appHandler := web.NewApplicationHandler(appUseCase)
+	dashboardHandler := web.NewDashboardHandler(appUseCase)
 
 	// Setup Router
 	r := gin.Default()
@@ -95,12 +96,16 @@ func main() {
 		protected.POST("/jobs", jobHandler.CreateJob)
 		protected.GET("/jobs/mine", jobHandler.GetMyJobs)
 		protected.PATCH("/jobs/:id", jobHandler.UpdateJob)
+		protected.POST("/jobs/:id/finalize", jobHandler.FinalizeJob)
 		protected.GET("/jobs/:id/applications", appHandler.GetJobApplications)
 
 		// Candidate
 		protected.POST("/jobs/:id/apply", appHandler.ApplyJob)
 		protected.GET("/applications", appHandler.MyApplications)
 		protected.PATCH("/applications/:id/cancel", appHandler.CancelApplication)
+
+		// Dashboard
+		protected.GET("/dashboard/summary", dashboardHandler.GetSummary)
 	}
 
 	port := ":" + cfg.Port

@@ -11,9 +11,10 @@ import (
 
 type JobUseCase struct {
 	jobRepo domain.JobRepository
+	appRepo domain.ApplicationRepository
 }
 
-func NewJobUseCase(jobRepo domain.JobRepository) *JobUseCase {
+func NewJobUseCase(jobRepo domain.JobRepository, appRepo domain.ApplicationRepository) *JobUseCase {
 	return &JobUseCase{
 		jobRepo: jobRepo,
 	}
@@ -182,6 +183,54 @@ func (uc *JobUseCase) GetRecruiterJobs(recruiterID uint, input dto.PaginationInp
 			TotalPages: totalPages,
 		},
 	}, nil
+}
+
+func (uc *JobUseCase) FinalizeJob(input dto.FinalizeJobInputDTO) error {
+	// 1. Get Job
+	job, err := uc.jobRepo.FindByID(input.JobID)
+	if err != nil {
+		return err
+	}
+
+	if job.Status != "OPEN" {
+		return errors.New("only OPEN jobs can be finalized")
+	}
+
+	// 2. Update Job Status
+	job.Status = "CLOSED"
+	if err := uc.jobRepo.Update(job); err != nil {
+		return err
+	}
+
+	// 3. Update applications: hire selected, reject others
+	apps, err := uc.appRepo.FindByJobID(input.JobID)
+	if err != nil {
+		return err
+	}
+
+	found := false
+	for i := range apps {
+		if apps[i].CandidateID == input.CandidateID {
+			apps[i].Status = domain.StatusHired
+			if err := uc.appRepo.Update(&apps[i]); err != nil {
+				return err
+			}
+			found = true
+		} else {
+			if apps[i].Status != domain.StatusCanceled {
+				apps[i].Status = domain.StatusRejected
+				if err := uc.appRepo.Update(&apps[i]); err != nil {
+					return err
+				}
+			}
+		}
+	}
+
+	if !found {
+		return errors.New("candidate application not found for this job")
+	}
+
+	return nil
 }
 
 func (uc *JobUseCase) UpdateJob(recruiterID uint, id uint, input dto.UpdateJobInputDTO) (*dto.GetJobOutputDTO, error) {
