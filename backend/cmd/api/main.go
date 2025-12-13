@@ -91,7 +91,7 @@ func main() {
 		// Recruiter
 		protected.POST("/jobs", jobHandler.CreateJob)
 		protected.GET("/jobs/mine", jobHandler.GetMyJobs)
-
+		protected.PATCH("/jobs/:id", jobHandler.UpdateJob)
 	}
 
 	port := ":" + cfg.Port

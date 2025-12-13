@@ -16,6 +16,10 @@ func (r *JobRepository) Create(job *domain.Job) error {
 	return database.DB.Create(job).Error
 }
 
+func (r *JobRepository) Update(job *domain.Job) error {
+	return database.DB.Save(job).Error
+}
+
 func (r *JobRepository) FindAll(page, limit int, query string, status string) ([]domain.Job, int64, error) {
 	var jobs []domain.Job
 	var total int64

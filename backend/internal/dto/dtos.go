@@ -66,6 +66,16 @@ type GetJobOutputDTO struct {
 	Anonymous      bool    `json:"anonymous"`
 }
 
+type UpdateJobInputDTO struct {
+	Title        string `json:"title"`
+	Description  string `json:"description"`
+	Company      string `json:"company"`
+	Location     string `json:"location"`
+	Requirements string `json:"requirements"`
+	Salary       string `json:"salary"`
+	Status       string `json:"status"`
+}
+
 // Pagination
 type PaginationInputDTO struct {
 	Page   int    `form:"page" json:"page"`

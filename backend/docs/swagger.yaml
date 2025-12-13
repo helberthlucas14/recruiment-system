@@ -152,6 +152,23 @@ definitions:
     - password
     - role
     type: object
+  web.UpdateJobRequest:
+    properties:
+      company:
+        type: string
+      description:
+        type: string
+      location:
+        type: string
+      requirements:
+        type: string
+      salary:
+        type: string
+      status:
+        type: string
+      title:
+        type: string
+    type: object
 host: localhost:8080
 info:
   contact: {}
@@ -245,6 +262,43 @@ paths:
           schema:
             $ref: '#/definitions/web.ErrorResponse'
       summary: Get job by ID
+      tags:
+      - jobs
+    patch:
+      consumes:
+      - application/json
+      description: Update job fields; only OPEN or PAUSED jobs can be updated. Status
+        can be OPEN or PAUSED.
+      parameters:
+      - description: Job ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      - description: Update Job Request
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/web.UpdateJobRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/dto.GetJobOutputDTO'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/web.ErrorResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/web.ErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: Update a job (Recruiter only)
       tags:
       - jobs
   /jobs/mine:

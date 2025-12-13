@@ -1,6 +1,7 @@
 package usecase
 
 import (
+	"errors"
 	"time"
 
 	"github.com/helberthlucas14/internal/dto"
@@ -180,5 +181,72 @@ func (uc *JobUseCase) GetRecruiterJobs(recruiterID uint, input dto.PaginationInp
 			Limit:      limit,
 			TotalPages: totalPages,
 		},
+	}, nil
+}
+
+func (uc *JobUseCase) UpdateJob(recruiterID uint, id uint, input dto.UpdateJobInputDTO) (*dto.GetJobOutputDTO, error) {
+	job, err := uc.jobRepo.FindByID(id)
+	if err != nil {
+		return nil, err
+	}
+	if job.RecruiterID != recruiterID {
+		return nil, errors.New("unauthorized: job does not belong to recruiter")
+	}
+	if job.Status == "CLOSED" {
+		return nil, errors.New("only OPEN or PAUSED jobs can be updated")
+	}
+
+	if input.Title != "" {
+		job.Title = input.Title
+	}
+	if input.Description != "" {
+		job.Description = input.Description
+	}
+	if input.Company != "" {
+		job.Company = input.Company
+	}
+	if input.Location != "" {
+		job.Location = input.Location
+	}
+	if input.Requirements != "" {
+		job.Requirements = input.Requirements
+	}
+	if input.Salary != "" {
+		job.Salary = input.Salary
+	}
+	if input.Status != "" {
+		switch input.Status {
+		case "OPEN", "PAUSED":
+			job.Status = input.Status
+		case "CLOSED":
+			return nil, errors.New("use finalize endpoint to close a job")
+		default:
+			return nil, errors.New("invalid status")
+		}
+	}
+
+	if err := uc.jobRepo.Update(job); err != nil {
+		return nil, err
+	}
+
+	return &dto.GetJobOutputDTO{
+		ID:           job.ID,
+		Title:        job.Title,
+		Description:  job.Description,
+		Company:      job.Company,
+		Location:     job.Location,
+		Requirements: job.Requirements,
+		Salary:       job.Salary,
+		Status:       job.Status,
+		CreatedAt:    job.CreatedAt.Format(time.RFC3339),
+		RecruiterID:  job.RecruiterID,
+		RecruiterEmail: func() *string {
+			if job.Anonymous {
+				return nil
+			}
+			e := job.Recruiter.Email
+			return &e
+		}(),
+		Anonymous: job.Anonymous,
 	}, nil
 }

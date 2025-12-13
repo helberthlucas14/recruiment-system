@@ -71,6 +71,62 @@ func (h *JobHandler) CreateJob(c *gin.Context) {
 	c.JSON(http.StatusCreated, job)
 }
 
+// UpdateJob godoc
+// @Summary Update a job (Recruiter only)
+// @Description Update job fields; only OPEN or PAUSED jobs can be updated. Status can be OPEN or PAUSED.
+// @Tags jobs
+// @Accept json
+// @Produce json
+// @Param id path int true "Job ID"
+// @Param request body UpdateJobRequest true "Update Job Request"
+// @Security BearerAuth
+// @Success 200 {object} dto.GetJobOutputDTO
+// @Failure 400 {object} ErrorResponse
+// @Failure 401 {object} ErrorResponse
+// @Router /jobs/{id} [patch]
+func (h *JobHandler) UpdateJob(c *gin.Context) {
+	roleVal, exists := c.Get("role")
+	if !exists {
+		c.JSON(http.StatusUnauthorized, ErrorResponse{Error: "Unauthorized"})
+		return
+	}
+	role, ok := roleVal.(domain.Role)
+	if !ok || role != domain.RoleRecruiter {
+		c.JSON(http.StatusForbidden, ErrorResponse{Error: "Only recruiters can update jobs"})
+		return
+	}
+
+	idStr := c.Param("id")
+	jobID, err := strconv.Atoi(idStr)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, ErrorResponse{Error: "Invalid Job ID"})
+		return
+	}
+
+	var req UpdateJobRequest
+	if err := c.ShouldBindJSON(&req); err != nil {
+		c.JSON(http.StatusBadRequest, ErrorResponse{Error: err.Error()})
+		return
+	}
+
+	recruiterID := c.GetUint("user_id")
+	output, err := h.jobUseCase.UpdateJob(recruiterID, uint(jobID), dto.UpdateJobInputDTO{
+		Title:        req.Title,
+		Description:  req.Description,
+		Company:      req.Company,
+		Location:     req.Location,
+		Requirements: req.Requirements,
+		Salary:       req.Salary,
+		Status:       req.Status,
+	})
+	if err != nil {
+		c.JSON(http.StatusBadRequest, ErrorResponse{Error: err.Error()})
+		return
+	}
+
+	c.JSON(http.StatusOK, output)
+}
+
 // GetJobs godoc
 // @Summary List all jobs
 // @Description Get all jobs with optional search query and pagination
@@ -193,4 +249,14 @@ type CreateJobRequest struct {
 	Requirements string `json:"requirements"`
 	Salary       string `json:"salary"`
 	Anonymous    bool   `json:"anonymous"`
+}
+
+type UpdateJobRequest struct {
+	Title        string `json:"title"`
+	Description  string `json:"description"`
+	Company      string `json:"company"`
+	Location     string `json:"location"`
+	Requirements string `json:"requirements"`
+	Salary       string `json:"salary"`
+	Status       string `json:"status"`
 }
