@@ -1,0 +1,84 @@
+basePath: /
+definitions:
+  domain.Role:
+    enum:
+    - CANDIDATE
+    - RECRUITER
+    type: string
+    x-enum-varnames:
+    - RoleCandidate
+    - RoleRecruiter
+  dto.RegisterOutputDTO:
+    properties:
+      email:
+        type: string
+      id:
+        type: integer
+      name:
+        type: string
+      role:
+        $ref: '#/definitions/domain.Role'
+    type: object
+  web.ErrorResponse:
+    properties:
+      error:
+        type: string
+    type: object
+  web.RegisterRequest:
+    properties:
+      email:
+        type: string
+      name:
+        type: string
+      password:
+        minLength: 6
+        type: string
+      role:
+        allOf:
+        - $ref: '#/definitions/domain.Role'
+        enum:
+        - CANDIDATE
+        - RECRUITER
+    required:
+    - email
+    - name
+    - password
+    - role
+    type: object
+host: localhost:8080
+info:
+  contact: {}
+  description: Backend for Recruitment and Selection System
+  title: Recruitment System API
+  version: "1.0"
+paths:
+  /register:
+    post:
+      consumes:
+      - application/json
+      description: Register a new user
+      parameters:
+      - description: Register Request
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/web.RegisterRequest'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/dto.RegisterOutputDTO'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/web.ErrorResponse'
+      summary: Register a new user (Candidate or Recruiter)
+securityDefinitions:
+  BearerAuth:
+    in: header
+    name: Authorization
+    type: apiKey
+swagger: "2.0"
