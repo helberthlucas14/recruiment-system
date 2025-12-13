@@ -138,6 +138,24 @@ func (uc *ApplicationUseCase) GetJobApplications(jobID uint, input dto.Paginatio
 	}, nil
 }
 
+func (uc *ApplicationUseCase) CancelApplication(appID, candidateID uint) error {
+	app, err := uc.appRepo.FindByID(appID)
+	if err != nil {
+		return err
+	}
+
+	if app.CandidateID != candidateID {
+		return errors.New("unauthorized: application does not belong to user")
+	}
+
+	if app.Status != domain.StatusPending {
+		return errors.New("only pending applications can be canceled")
+	}
+
+	app.Status = domain.StatusCanceled
+	return uc.appRepo.Update(app)
+}
+
 func (uc *ApplicationUseCase) GetCandidateStats(candidateID uint) (*dto.DashboardStatsDTO, error) {
 	applied, err := uc.appRepo.GetStats(candidateID)
 	if err != nil {

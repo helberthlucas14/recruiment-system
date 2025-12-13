@@ -149,3 +149,42 @@ func (h *ApplicationHandler) GetJobApplications(c *gin.Context) {
 
 	c.JSON(http.StatusOK, apps)
 }
+
+// CancelApplication godoc
+// @Summary Cancel an application
+// @Description Cancel a pending application
+// @Tags applications
+// @Accept json
+// @Produce json
+// @Param id path int true "Application ID"
+// @Security BearerAuth
+// @Success 200 {object} map[string]string
+// @Router /applications/{id}/cancel [patch]
+func (h *ApplicationHandler) CancelApplication(c *gin.Context) {
+	roleVal, exists := c.Get("role")
+	if !exists {
+		c.JSON(http.StatusUnauthorized, ErrorResponse{Error: "Unauthorized"})
+		return
+	}
+	role, ok := roleVal.(domain.Role)
+	if !ok || role != domain.RoleCandidate {
+		c.JSON(http.StatusForbidden, ErrorResponse{Error: "Only candidates can cancel applications"})
+		return
+	}
+
+	appIDStr := c.Param("id")
+	appID, err := strconv.Atoi(appIDStr)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, ErrorResponse{Error: "Invalid Application ID"})
+		return
+	}
+
+	candidateID := c.GetUint("user_id")
+	err = h.appUseCase.CancelApplication(uint(appID), candidateID)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, ErrorResponse{Error: err.Error()})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{"message": "Application canceled successfully"})
+}

@@ -100,6 +100,7 @@ func main() {
 		// Candidate
 		protected.POST("/jobs/:id/apply", appHandler.ApplyJob)
 		protected.GET("/applications", appHandler.MyApplications)
+		protected.PATCH("/applications/:id/cancel", appHandler.CancelApplication)
 	}
 
 	port := ":" + cfg.Port

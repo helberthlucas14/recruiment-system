@@ -16,6 +16,7 @@ type JobRepository interface {
 
 type ApplicationRepository interface {
 	Create(app *Application) error
+	Update(app *Application) error
 	FindByCandidateID(candidateID uint, page, limit int) ([]Application, int64, error)
 	FindByJobID(jobID uint) ([]Application, error)
 	FindPaginatedByJobID(jobID uint, page, limit int, status string) ([]Application, int64, error)

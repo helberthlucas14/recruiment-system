@@ -232,6 +232,31 @@ paths:
       summary: Get my applications
       tags:
       - applications
+  /applications/{id}/cancel:
+    patch:
+      consumes:
+      - application/json
+      description: Cancel a pending application
+      parameters:
+      - description: Application ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      security:
+      - BearerAuth: []
+      summary: Cancel an application
+      tags:
+      - applications
   /jobs:
     get:
       consumes:
