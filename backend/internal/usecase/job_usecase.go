@@ -51,3 +51,134 @@ func (uc *JobUseCase) CreateJob(input dto.CreateJobInputDTO) (*dto.CreateJobOutp
 		Anonymous:      job.Anonymous,
 	}, nil
 }
+
+func (uc *JobUseCase) GetAllJobs(input dto.PaginationInputDTO) (*dto.PaginatedJobsOutputDTO, error) {
+	page := input.Page
+	if page <= 0 {
+		page = 1
+	}
+	limit := input.Limit
+	if limit <= 0 {
+		limit = 10
+	}
+
+	jobs, total, err := uc.jobRepo.FindAll(page, limit, input.Query, input.Status)
+	if err != nil {
+		return nil, err
+	}
+
+	output := make([]dto.GetJobOutputDTO, len(jobs))
+	for i, j := range jobs {
+		output[i] = dto.GetJobOutputDTO{
+			ID:           j.ID,
+			Title:        j.Title,
+			Description:  j.Description,
+			Company:      j.Company,
+			Location:     j.Location,
+			Requirements: j.Requirements,
+			Salary:       j.Salary,
+			Status:       j.Status,
+			CreatedAt:    j.CreatedAt.Format(time.RFC3339),
+			RecruiterID:  j.RecruiterID,
+			RecruiterEmail: func() *string {
+				if j.Anonymous {
+					return nil
+				}
+				e := j.Recruiter.Email
+				return &e
+			}(),
+			Anonymous: j.Anonymous,
+		}
+	}
+
+	totalPages := int((total + int64(limit) - 1) / int64(limit))
+
+	return &dto.PaginatedJobsOutputDTO{
+		Data: output,
+		Meta: dto.MetaDTO{
+			Total:      total,
+			Page:       page,
+			Limit:      limit,
+			TotalPages: totalPages,
+		},
+	}, nil
+}
+
+func (uc *JobUseCase) GetJobByID(id uint) (*dto.GetJobOutputDTO, error) {
+	job, err := uc.jobRepo.FindByID(id)
+	if err != nil {
+		return nil, err
+	}
+	return &dto.GetJobOutputDTO{
+		ID:           job.ID,
+		Title:        job.Title,
+		Description:  job.Description,
+		Company:      job.Company,
+		Location:     job.Location,
+		Requirements: job.Requirements,
+		Salary:       job.Salary,
+		Status:       job.Status,
+		CreatedAt:    job.CreatedAt.Format(time.RFC3339),
+		RecruiterID:  job.RecruiterID,
+		RecruiterEmail: func() *string {
+			if job.Anonymous {
+				return nil
+			}
+			e := job.Recruiter.Email
+			return &e
+		}(),
+		Anonymous: job.Anonymous,
+	}, nil
+}
+
+func (uc *JobUseCase) GetRecruiterJobs(recruiterID uint, input dto.PaginationInputDTO) (*dto.PaginatedJobsOutputDTO, error) {
+	page := input.Page
+	if page <= 0 {
+		page = 1
+	}
+	limit := input.Limit
+	if limit <= 0 {
+		limit = 10
+	}
+
+	jobs, total, err := uc.jobRepo.FindByRecruiterID(recruiterID, page, limit, input.Query, input.Status)
+	if err != nil {
+		return nil, err
+	}
+
+	output := make([]dto.GetJobOutputDTO, len(jobs))
+	for i, j := range jobs {
+		output[i] = dto.GetJobOutputDTO{
+			ID:           j.ID,
+			Title:        j.Title,
+			Description:  j.Description,
+			Company:      j.Company,
+			Location:     j.Location,
+			Requirements: j.Requirements,
+			Salary:       j.Salary,
+			Status:       j.Status,
+			CreatedAt:    j.CreatedAt.Format(time.RFC3339),
+			RecruiterID:  j.RecruiterID,
+			RecruiterEmail: func() *string {
+				if j.Anonymous {
+					return nil
+				}
+				e := j.Recruiter.Email
+				return &e
+			}(),
+			Anonymous: j.Anonymous,
+		}
+	}
+
+	totalPages := int((total + int64(limit) - 1) / int64(limit))
+
+	return &dto.PaginatedJobsOutputDTO{
+		Data: output,
+		Meta: dto.MetaDTO{
+			Total:      total,
+			Page:       page,
+			Limit:      limit,
+			TotalPages: totalPages,
+		},
+	}, nil
+}

@@ -81,6 +81,8 @@ func main() {
 	// Public Routes
 	r.POST("/register", authHandler.Register)
 	r.POST("/login", authHandler.Login)
+	r.GET("/jobs", jobHandler.GetJobs)
+	r.GET("/jobs/:id", jobHandler.GetJob)
 
 	// Protected Routes
 	protected := r.Group("/")
@@ -88,6 +90,8 @@ func main() {
 	{
 		// Recruiter
 		protected.POST("/jobs", jobHandler.CreateJob)
+		protected.GET("/jobs/mine", jobHandler.GetMyJobs)
+
 	}
 
 	port := ":" + cfg.Port

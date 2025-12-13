@@ -65,3 +65,23 @@ type GetJobOutputDTO struct {
 	RecruiterEmail *string `json:"recruiter_email,omitempty"`
 	Anonymous      bool    `json:"anonymous"`
 }
+
+// Pagination
+type PaginationInputDTO struct {
+	Page   int    `form:"page" json:"page"`
+	Limit  int    `form:"limit" json:"limit"`
+	Query  string `form:"q" json:"q"`
+	Status string `form:"status" json:"status"`
+}
+
+type MetaDTO struct {
+	Total      int64 `json:"total"`
+	Page       int   `json:"page"`
+	Limit      int   `json:"limit"`
+	TotalPages int   `json:"total_pages"`
+}
+
+type PaginatedJobsOutputDTO struct {
+	Data []GetJobOutputDTO `json:"data"`
+	Meta MetaDTO           `json:"meta"`
+}
