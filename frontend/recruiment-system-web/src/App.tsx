@@ -1,5 +1,7 @@
 import { CssBaseline, ThemeProvider, createTheme } from '@mui/material';
 import AppRouter from './presentation/router/AppRouter';
+import { ToastProvider } from './presentation/context/ToastContext';
+import { AuthProvider } from './presentation/context/AuthContext';
 
 const theme = createTheme({
   palette: {
@@ -56,7 +58,11 @@ function App() {
   return (
     <ThemeProvider theme={theme}>
       <CssBaseline />
+      <AuthProvider>
+        <ToastProvider>
           <AppRouter />
+        </ToastProvider>
+      </AuthProvider>
     </ThemeProvider>
   );
 }
