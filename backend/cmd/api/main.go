@@ -38,19 +38,22 @@ func main() {
 
 	// 1. Database
 	database.Connect(cfg)
-	database.Migrate(&domain.User{}, &domain.Job{})
+	database.Migrate(&domain.User{}, &domain.Job{}, &domain.Application{})
 
 	// Initialize Repositories (Infra)
 	userRepo := &repository.UserRepository{}
 	jobRepo := &repository.JobRepository{}
+	appRepo := &repository.ApplicationRepository{}
 
 	// Initialize UseCases
 	authUseCase := usecase.NewAuthUseCase(userRepo, cfg.JWTSecret)
 	jobUseCase := usecase.NewJobUseCase(jobRepo)
+	appUseCase := usecase.NewApplicationUseCase(appRepo, jobRepo)
 
 	// Initialize Handlers
 	authHandler := web.NewAuthHandler(authUseCase)
 	jobHandler := web.NewJobHandler(jobUseCase)
+	appHandler := web.NewApplicationHandler(appUseCase)
 
 	// Setup Router
 	r := gin.Default()
@@ -92,6 +95,9 @@ func main() {
 		protected.POST("/jobs", jobHandler.CreateJob)
 		protected.GET("/jobs/mine", jobHandler.GetMyJobs)
 		protected.PATCH("/jobs/:id", jobHandler.UpdateJob)
+
+		// Candidate
+		protected.POST("/jobs/:id/apply", appHandler.ApplyJob)
 	}
 
 	port := ":" + cfg.Port

@@ -8,6 +8,27 @@ definitions:
     x-enum-varnames:
     - RoleCandidate
     - RoleRecruiter
+  dto.ApplyJobOutputDTO:
+    properties:
+      applied_at:
+        type: string
+      candidate_id:
+        type: integer
+      candidate_name:
+        type: string
+      company:
+        type: string
+      id:
+        type: integer
+      job_id:
+        type: integer
+      job_title:
+        type: string
+      location:
+        type: string
+      status:
+        type: string
+    type: object
   dto.CreateJobOutputDTO:
     properties:
       anonymous:
@@ -301,6 +322,33 @@ paths:
       summary: Update a job (Recruiter only)
       tags:
       - jobs
+  /jobs/{id}/apply:
+    post:
+      consumes:
+      - application/json
+      description: Apply for a job as a candidate
+      parameters:
+      - description: Job ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/dto.ApplyJobOutputDTO'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/web.ErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: Apply for a job
+      tags:
+      - applications
   /jobs/mine:
     get:
       consumes:

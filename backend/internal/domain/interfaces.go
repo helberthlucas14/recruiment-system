@@ -13,3 +13,8 @@ type JobRepository interface {
 	FindByID(id uint) (*Job, error)
 	FindByRecruiterID(recruiterID uint, page, limit int, query string, status string) ([]Job, int64, error)
 }
+
+type ApplicationRepository interface {
+	Create(app *Application) error
+	Exists(jobID, candidateID uint) (bool, error)
+}

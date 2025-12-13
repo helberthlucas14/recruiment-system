@@ -95,3 +95,21 @@ type PaginatedJobsOutputDTO struct {
 	Data []GetJobOutputDTO `json:"data"`
 	Meta MetaDTO           `json:"meta"`
 }
+
+// Application
+type ApplyJobInputDTO struct {
+	JobID       uint `json:"job_id"`
+	CandidateID uint `json:"candidate_id"`
+}
+
+type ApplyJobOutputDTO struct {
+	ID            uint   `json:"id"`
+	JobID         uint   `json:"job_id"`
+	JobTitle      string `json:"job_title"`
+	Company       string `json:"company"`
+	Location      string `json:"location"`
+	CandidateID   uint   `json:"candidate_id"`
+	CandidateName string `json:"candidate_name,omitempty"`
+	Status        string `json:"status"`
+	AppliedAt     string `json:"applied_at"`
+}
