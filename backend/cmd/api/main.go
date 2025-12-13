@@ -95,9 +95,11 @@ func main() {
 		protected.POST("/jobs", jobHandler.CreateJob)
 		protected.GET("/jobs/mine", jobHandler.GetMyJobs)
 		protected.PATCH("/jobs/:id", jobHandler.UpdateJob)
+		protected.GET("/jobs/:id/applications", appHandler.GetJobApplications)
 
 		// Candidate
 		protected.POST("/jobs/:id/apply", appHandler.ApplyJob)
+		protected.GET("/applications", appHandler.MyApplications)
 	}
 
 	port := ":" + cfg.Port

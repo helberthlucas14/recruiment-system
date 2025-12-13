@@ -113,3 +113,13 @@ type ApplyJobOutputDTO struct {
 	Status        string `json:"status"`
 	AppliedAt     string `json:"applied_at"`
 }
+
+type PaginatedApplicationsOutputDTO struct {
+	Data []ApplyJobOutputDTO `json:"data"`
+	Meta MetaDTO             `json:"meta"`
+}
+
+type DashboardStatsDTO struct {
+	Applied int64 `json:"applied"`
+	Pending int64 `json:"pending"`
+}

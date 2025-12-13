@@ -90,6 +90,15 @@ definitions:
       total_pages:
         type: integer
     type: object
+  dto.PaginatedApplicationsOutputDTO:
+    properties:
+      data:
+        items:
+          $ref: '#/definitions/dto.ApplyJobOutputDTO'
+        type: array
+      meta:
+        $ref: '#/definitions/dto.MetaDTO'
+    type: object
   dto.PaginatedJobsOutputDTO:
     properties:
       data:
@@ -197,6 +206,32 @@ info:
   title: Recruitment System API
   version: "1.0"
 paths:
+  /applications:
+    get:
+      consumes:
+      - application/json
+      description: List all applications for the logged in candidate
+      parameters:
+      - description: Page number
+        in: query
+        name: page
+        type: integer
+      - description: Items per page
+        in: query
+        name: limit
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/dto.PaginatedApplicationsOutputDTO'
+      security:
+      - BearerAuth: []
+      summary: Get my applications
+      tags:
+      - applications
   /jobs:
     get:
       consumes:
@@ -322,6 +357,41 @@ paths:
       summary: Update a job (Recruiter only)
       tags:
       - jobs
+  /jobs/{id}/applications:
+    get:
+      consumes:
+      - application/json
+      description: List all applications for a specific job (Recruiter only)
+      parameters:
+      - description: Job ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      - description: Page number
+        in: query
+        name: page
+        type: integer
+      - description: Items per page
+        in: query
+        name: limit
+        type: integer
+      - description: Filter by status (e.g., PENDING)
+        in: query
+        name: status
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/dto.PaginatedApplicationsOutputDTO'
+      security:
+      - BearerAuth: []
+      summary: Get job applications
+      tags:
+      - applications
   /jobs/{id}/apply:
     post:
       consumes:

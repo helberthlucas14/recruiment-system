@@ -16,5 +16,11 @@ type JobRepository interface {
 
 type ApplicationRepository interface {
 	Create(app *Application) error
+	FindByCandidateID(candidateID uint, page, limit int) ([]Application, int64, error)
+	FindByJobID(jobID uint) ([]Application, error)
+	FindPaginatedByJobID(jobID uint, page, limit int, status string) ([]Application, int64, error)
 	Exists(jobID, candidateID uint) (bool, error)
+	FindByID(id uint) (*Application, error)
+	GetStats(candidateID uint) (int64, error)
+	GetPendingCount(candidateID uint) (int64, error)
 }
