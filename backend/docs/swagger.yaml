@@ -24,6 +24,21 @@ definitions:
       error:
         type: string
     type: object
+  web.LoginRequest:
+    properties:
+      email:
+        type: string
+      password:
+        type: string
+    required:
+    - email
+    - password
+    type: object
+  web.LoginResponse:
+    properties:
+      token:
+        type: string
+    type: object
   web.RegisterRequest:
     properties:
       email:
@@ -52,6 +67,32 @@ info:
   title: Recruitment System API
   version: "1.0"
 paths:
+  /login:
+    post:
+      consumes:
+      - application/json
+      description: Login and get JWT token
+      parameters:
+      - description: Login Request
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/web.LoginRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/web.LoginResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/web.ErrorResponse'
+      summary: Login user
+      tags:
+      - auth
   /register:
     post:
       consumes:

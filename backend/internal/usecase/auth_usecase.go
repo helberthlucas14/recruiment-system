@@ -1,6 +1,9 @@
 package usecase
 
 import (
+	"errors"
+	"time"
+
 	"github.com/helberthlucas14/internal/domain"
 
 	"github.com/helberthlucas14/internal/dto"
@@ -52,5 +55,35 @@ func (uc *AuthUseCase) Register(input dto.RegisterInputDTO) (*dto.RegisterOutput
 		Email: user.Email,
 		Role:  user.Role,
 	}, nil
+}
 
+func (uc *AuthUseCase) Login(input dto.LoginInputDTO) (*dto.LoginOutputDTO, error) {
+	user, err := uc.userRepo.FindByEmail(input.Email)
+	if err != nil {
+		return nil, errors.New("invalid credentials")
+	}
+
+	if err := bcrypt.CompareHashAndPassword([]byte(user.Password), []byte(input.Password)); err != nil {
+		return nil, errors.New("invalid credentials")
+	}
+
+	expirationTime := time.Now().Add(24 * time.Hour)
+	claims := &Claims{
+		UserID: user.ID,
+		Email:  user.Email,
+		Name:   user.Name,
+		Role:   user.Role,
+		RegisteredClaims: jwt.RegisteredClaims{
+			ExpiresAt: jwt.NewNumericDate(expirationTime),
+			Issuer:    "recruitment-system",
+		},
+	}
+
+	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
+	tokenString, err := token.SignedString([]byte(uc.jwtSecret))
+	if err != nil {
+		return nil, err
+	}
+
+	return &dto.LoginOutputDTO{Token: tokenString}, nil
 }

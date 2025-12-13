@@ -49,6 +49,35 @@ func (h *AuthHandler) Register(c *gin.Context) {
 	c.JSON(http.StatusCreated, user)
 }
 
+// Login godoc
+// @Summary Login user
+// @Description Login and get JWT token
+// @Tags auth
+// @Accept json
+// @Produce json
+// @Param request body LoginRequest true "Login Request"
+// @Success 200 {object} LoginResponse
+// @Failure 401 {object} ErrorResponse
+// @Router /login [post]
+func (h *AuthHandler) Login(c *gin.Context) {
+	var req LoginRequest
+	if err := c.ShouldBindJSON(&req); err != nil {
+		c.JSON(http.StatusBadRequest, ErrorResponse{Error: err.Error()})
+		return
+	}
+
+	output, err := h.authUseCase.Login(dto.LoginInputDTO{
+		Email:    req.Email,
+		Password: req.Password,
+	})
+	if err != nil {
+		c.JSON(http.StatusUnauthorized, ErrorResponse{Error: err.Error()})
+		return
+	}
+
+	c.JSON(http.StatusOK, LoginResponse{Token: output.Token})
+}
+
 type RegisterRequest struct {
 	Name     string      `json:"name" binding:"required"`
 	Email    string      `json:"email" binding:"required,email"`

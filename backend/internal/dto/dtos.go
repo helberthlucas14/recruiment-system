@@ -16,3 +16,12 @@ type RegisterOutputDTO struct {
 	Email string
 	Role  domain.Role
 }
+
+type LoginInputDTO struct {
+	Email    string
+	Password string
+}
+
+type LoginOutputDTO struct {
+	Token string
+}

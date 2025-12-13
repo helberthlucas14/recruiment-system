@@ -76,6 +76,7 @@ func main() {
 
 	// Public Routes
 	r.POST("/register", authHandler.Register)
+	r.POST("/login", authHandler.Login)
 
 	port := ":" + cfg.Port
 	log.Println("Server executing on port", port)
