@@ -4,6 +4,7 @@ import (
 	"log"
 
 	"github.com/helberthlucas14/internal/domain"
+	"github.com/helberthlucas14/internal/middleware"
 
 	"github.com/helberthlucas14/internal/infra/database"
 
@@ -37,16 +38,19 @@ func main() {
 
 	// 1. Database
 	database.Connect(cfg)
-	database.Migrate(&domain.User{})
+	database.Migrate(&domain.User{}, &domain.Job{})
 
 	// Initialize Repositories (Infra)
 	userRepo := &repository.UserRepository{}
+	jobRepo := &repository.JobRepository{}
 
 	// Initialize UseCases
 	authUseCase := usecase.NewAuthUseCase(userRepo, cfg.JWTSecret)
+	jobUseCase := usecase.NewJobUseCase(jobRepo)
 
 	// Initialize Handlers
 	authHandler := web.NewAuthHandler(authUseCase)
+	jobHandler := web.NewJobHandler(jobUseCase)
 
 	// Setup Router
 	r := gin.Default()
@@ -77,6 +81,14 @@ func main() {
 	// Public Routes
 	r.POST("/register", authHandler.Register)
 	r.POST("/login", authHandler.Login)
+
+	// Protected Routes
+	protected := r.Group("/")
+	protected.Use(middleware.AuthMiddleware(cfg.JWTSecret))
+	{
+		// Recruiter
+		protected.POST("/jobs", jobHandler.CreateJob)
+	}
 
 	port := ":" + cfg.Port
 	log.Println("Server executing on port", port)

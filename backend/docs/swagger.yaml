@@ -8,6 +8,29 @@ definitions:
     x-enum-varnames:
     - RoleCandidate
     - RoleRecruiter
+  dto.CreateJobOutputDTO:
+    properties:
+      anonymous:
+        type: boolean
+      company:
+        type: string
+      created_at:
+        type: string
+      description:
+        type: string
+      id:
+        type: integer
+      location:
+        type: string
+      recruiter_email:
+        type: string
+      recruiter_id:
+        type: integer
+      status:
+        type: string
+      title:
+        type: string
+    type: object
   dto.RegisterOutputDTO:
     properties:
       email:
@@ -18,6 +41,28 @@ definitions:
         type: string
       role:
         $ref: '#/definitions/domain.Role'
+    type: object
+  web.CreateJobRequest:
+    properties:
+      anonymous:
+        type: boolean
+      company:
+        type: string
+      description:
+        type: string
+      location:
+        type: string
+      requirements:
+        type: string
+      salary:
+        type: string
+      title:
+        type: string
+    required:
+    - company
+    - description
+    - location
+    - title
     type: object
   web.ErrorResponse:
     properties:
@@ -67,6 +112,50 @@ info:
   title: Recruitment System API
   version: "1.0"
 paths:
+  /jobs:
+    post:
+      consumes:
+      - application/json
+      - application/json
+      description: |-
+        Create a job posting (Recruiter only)
+        Create a job posting (Recruiter only)
+      parameters:
+      - description: Create Job Request
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/web.CreateJobRequest'
+      - description: Create Job Request
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/web.CreateJobRequest'
+      produces:
+      - application/json
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/dto.CreateJobOutputDTO'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/web.ErrorResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/web.ErrorResponse'
+      security:
+      - BearerAuth: []
+      - BearerAuth: []
+      summary: Create a new job
+      tags:
+      - jobs
+      - jobs
   /login:
     post:
       consumes:
