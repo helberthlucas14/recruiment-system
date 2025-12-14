@@ -9,6 +9,8 @@ import Layout from '../components/Layout';
 import { CircularProgress, Box } from '@mui/material';
 import JobDetails from '../pages/JobDetails';
 import CreateJob from '../pages/CreateJob';
+import ManageJob from '../pages/ManageJob';
+import MyApplications from '../pages/MyApplications';
 
 const PrivateRoute = () => {
     const { isAuthenticated, isLoading } = useAuth();
@@ -45,6 +47,8 @@ const AppRouter: React.FC = () => {
                 <Route element={<PrivateRoute />}>
                     <Route path="/jobs" element={<JobDashboard />} />
                     <Route path="/jobs/:id" element={<JobDetails />} />
+                    <Route path="/jobs/:id/manage" element={<ManageJob />} />
+                    <Route path="/applications" element={<MyApplications />} />
                     <Route path="/create-job" element={<CreateJob />} />
                     <Route path="*" element={<Navigate to="/jobs" />} />
                 </Route>

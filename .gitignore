@@ -1,1 +1,4 @@
 .vscode/launch.json
+frontend/recruiment-system-web/.env.docker
+frontend/recruiment-system-web/.env.development
+backend/main.exe

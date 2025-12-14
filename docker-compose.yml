@@ -1,0 +1,69 @@
+version: '3.8'
+
+services:
+  backend:
+    build:
+      context: .
+      dockerfile: backend/Dockerfile
+    container_name: recruitment_backend
+    environment:
+      PORT: "8080"
+      JWT_SECRET: "change_me_secret"
+      DB_HOST: db
+      DB_PORT: "5432"
+      DB_USER: user
+      DB_PASSWORD: password
+      DB_NAME: recruitment
+      DB_SSLMODE: disable
+    ports:
+      - "8081:8080"
+    depends_on:
+      - db
+    restart: unless-stopped
+
+  frontend:
+    build:
+      context: .
+      dockerfile: frontend/recruiment-system-web/Dockerfile
+    container_name: recruitment_frontend
+    ports:
+      - "5173:5173"
+    depends_on:
+      - backend
+    restart: unless-stopped
+
+  db:
+    image: postgres:15-alpine
+    container_name: recruitment_db
+    restart: always
+    environment:
+      POSTGRES_USER: user
+      POSTGRES_PASSWORD: password
+      POSTGRES_DB: recruitment
+    ports:
+      - "5432:5432"
+    volumes:
+      - db_data:/var/lib/postgresql/data
+
+  seed:
+    image: golang:latest
+    working_dir: /workspace
+    volumes:
+      - ./:/workspace
+    environment:
+      PORT: "8080"
+      JWT_SECRET: "change_me_secret"
+      DB_HOST: db
+      DB_PORT: "5432"
+      DB_USER: user
+      DB_PASSWORD: password
+      DB_NAME: recruitment
+      DB_SSLMODE: disable
+      WAIT_FOR_DB: 5
+    depends_on:
+      - db
+    entrypoint: ["/bin/sh","/workspace/seed.sh"]
+    restart: "no"
+
+volumes:
+  db_data:
